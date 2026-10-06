@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Etichette su A4</title>
+</head>
+<body>
+<script id="core">
+// Pure geometry, no DOM: test.mjs extracts and runs this block.
+// PDF points, origin bottom-left.
+const MM = 72 / 25.4;
+const A4 = { w: 595.28, h: 841.89 };
+const GRIDS = { 1: [1, 1], 2: [1, 2], 4: [2, 2], 6: [2, 3], 8: [2, 4] }; // [cols, rows]
+
+// Cells in reading order: top-left first.
+function cellRects(perPage, page = A4, margin = 5 * MM) {
+  const [cols, rows] = GRIDS[perPage];
+  const w = (page.w - 2 * margin) / cols, h = (page.h - 2 * margin) / rows;
+  const cells = [];
+  for (let r = 0; r < rows; r++)
+    for (let c = 0; c < cols; c++)
+      cells.push({ x: margin + c * w, y: page.h - margin - (r + 1) * h, w, h });
+  return cells;
+}
+
+// Rotate 90° only if the label gets at least 2% bigger. Never upscale.
+function fitLabel(lw, lh, aw, ah) {
+  const straight = Math.min(aw / lw, ah / lh, 1);
+  const turned = Math.min(aw / lh, ah / lw, 1);
+  return turned > straight * 1.02
+    ? { rotate: true, scale: turned }
+    : { rotate: false, scale: straight };
+}
+
+// Options for pdf-lib drawPage. rotate -90 turns clockwise around (x, y),
+// so a turned label is anchored at the top-left corner of its footprint.
+function placeLabel(lw, lh, area) {
+  const { rotate, scale } = fitLabel(lw, lh, area.w, area.h);
+  const width = lw * scale, height = lh * scale;
+  const fw = rotate ? height : width, fh = rotate ? width : height;
+  const fx = area.x + (area.w - fw) / 2, fy = area.y + (area.h - fh) / 2;
+  return rotate
+    ? { x: fx, y: fy + fh, width, height, rotate: -90 }
+    : { x: fx, y: fy, width, height, rotate: 0 };
+}
+
+// Bounding box of non-white pixels in RGBA data (x1, y1 exclusive), null if blank.
+function contentBox(data, width, height, threshold = 235) {
+  let x0 = width, y0 = height, x1 = -1, y1 = -1;
+  for (let y = 0; y < height; y++)
+    for (let x = 0; x < width; x++) {
+      const i = (y * width + x) * 4;
+      if (data[i] < threshold || data[i + 1] < threshold || data[i + 2] < threshold) {
+        if (x < x0) x0 = x;
+        if (x > x1) x1 = x;
+        if (y < y0) y0 = y;
+        if (y > y1) y1 = y;
+      }
+    }
+  return x1 < 0 ? null : { x0, y0, x1: x1 + 1, y1: y1 + 1 };
+}
+</script>
+</body>
+</html>
