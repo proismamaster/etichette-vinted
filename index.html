@@ -436,11 +436,21 @@ async function renderPreview() {
 $('files').onchange = e => { addFiles([...e.target.files]); e.target.value = ''; };
 $('perPage').onchange = renderPreview;
 $('notes').onchange = renderPreview;
+// Inside the claude.ai viewer, plain <a download> is blocked: the downloads
+// capability asks the viewer to confirm instead. Opened as a local file, there is no window.claude.
+const downloadsReady = window.claude?.use ? window.claude.use('downloads') : Promise.resolve(null);
 $('download').onclick = async () => {
-  const bytes = await buildPdf(labels, settings());
+  const blob = new Blob([await buildPdf(labels, settings())], { type: 'application/pdf' });
+  const filename = `etichette-${new Date().toISOString().slice(0, 10)}.pdf`;
+  const downloads = await downloadsReady;
+  if (downloads) {
+    try { await downloads.save({ filename, data: blob }); }
+    catch (e) { if (e.code !== 'declined') $('status').textContent = 'Download non riuscito. Riprova.'; }
+    return;
+  }
   const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([bytes], { type: 'application/pdf' }));
-  a.download = `etichette-${new Date().toISOString().slice(0, 10)}.pdf`;
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
   a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 10000);
 };
