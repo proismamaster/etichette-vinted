@@ -2,9 +2,195 @@
 <html lang="it">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Etichette su A4</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #ffffff;
+    --bg: #eef1ef;
+    --ink: #18201c;
+    --muted: #56615b;
+    --line: #d5dbd7;
+    --mat: #2e5446;
+    --mat-grid: rgba(255, 255, 255, .08);
+    --mat-grid-strong: rgba(255, 255, 255, .16);
+    --accent: #2e5446;
+    --accent-ink: #ffffff;
+    --focus: #e8a317;
+    --error: #a1301e;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #161b19; --bg: #0f1312; --ink: #e5eae7; --muted: #9ba6a0; --line: #2d3531;
+      --mat: #1d362d; --accent: #4a8a70; --accent-ink: #0b1210; --error: #f08a74;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #161b19; --bg: #0f1312; --ink: #e5eae7; --muted: #9ba6a0; --line: #2d3531;
+    --mat: #1d362d; --accent: #4a8a70; --accent-ink: #0b1210; --error: #f08a74;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font: 400 16px/1.5 "Archivo", system-ui, sans-serif;
+    min-height: 100dvh;
+    display: grid;
+    grid-template-columns: minmax(0, 400px) minmax(0, 1fr);
+  }
+  :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+  .panel {
+    background: var(--paper);
+    border-right: 1px solid var(--line);
+    padding: 28px 24px 40px;
+    display: flex; flex-direction: column; gap: 24px;
+    height: 100dvh; overflow-y: auto; position: sticky; top: 0;
+  }
+  h1 {
+    margin: 0;
+    font-size: 30px; line-height: 1.1; font-weight: 700;
+    font-stretch: 78%; letter-spacing: -.01em;
+  }
+  .lede { margin: 6px 0 0; color: var(--muted); font-size: 15px; }
+
+  .drop {
+    display: block; cursor: pointer;
+    border: 2px dashed var(--line); border-radius: 10px;
+    padding: 20px 16px; text-align: center;
+  }
+  .drop strong { display: block; font-weight: 600; }
+  .drop span { color: var(--muted); font-size: 14px; }
+  .drop:hover, .drop.over { border-color: var(--accent); }
+  .drop:focus-within { outline: 3px solid var(--focus); outline-offset: 2px; }
+  .drop input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+  .status { margin: 8px 0 0; font-size: 14px; color: var(--error); }
+  .status:empty { display: none; }
+
+  fieldset { border: 0; margin: 0; padding: 0; }
+  legend, .field-label { font-weight: 600; font-size: 15px; padding: 0; margin-bottom: 8px; }
+  .seg { display: flex; gap: 6px; }
+  .seg label { flex: 1; }
+  .seg input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+  .seg span {
+    display: grid; place-items: center; height: 44px; cursor: pointer;
+    border: 1px solid var(--line); border-radius: 8px;
+    font-weight: 600; font-variant-numeric: tabular-nums;
+  }
+  .seg input:checked + span { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .seg input:focus-visible + span { outline: 3px solid var(--focus); outline-offset: 2px; }
+  .check { display: flex; align-items: center; gap: 10px; min-height: 44px; cursor: pointer; }
+  .check input { width: 20px; height: 20px; accent-color: var(--accent); }
+
+  .actions { display: flex; flex-direction: column; gap: 6px; }
+  .primary {
+    height: 48px; border: 0; border-radius: 8px; cursor: pointer;
+    background: var(--accent); color: var(--accent-ink);
+    font: 600 16px/1 "Archivo", system-ui, sans-serif;
+  }
+  .primary:disabled { opacity: .45; cursor: not-allowed; }
+  .hint { margin: 0; color: var(--muted); font-size: 14px; }
+
+  .labels { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+  .item {
+    display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 12px;
+    padding-top: 12px; border-top: 1px solid var(--line);
+  }
+  .item img {
+    width: 64px; height: 64px; object-fit: contain;
+    background: #fff; border: 1px solid var(--line); border-radius: 4px;
+  }
+  .item-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .item-name { font-weight: 600; font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .remove {
+    background: none; border: 0; padding: 0 4px; min-height: 44px; cursor: pointer;
+    color: var(--muted); font: 500 14px/1 "Archivo", system-ui, sans-serif; text-decoration: underline;
+  }
+  .remove:hover { color: var(--error); }
+  .item label { display: block; font-size: 13px; color: var(--muted); margin: 2px 0 4px; }
+  .item input[type="text"] {
+    width: 100%; height: 40px; padding: 0 10px;
+    border: 1px solid var(--line); border-radius: 6px;
+    background: var(--paper); color: var(--ink); font: inherit; font-size: 15px;
+  }
+
+  /* The cutting mat: the one loud element. */
+  .mat {
+    background-color: var(--mat);
+    background-image:
+      linear-gradient(var(--mat-grid-strong) 1px, transparent 1px),
+      linear-gradient(90deg, var(--mat-grid-strong) 1px, transparent 1px),
+      linear-gradient(var(--mat-grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--mat-grid) 1px, transparent 1px);
+    background-size: 120px 120px, 120px 120px, 24px 24px, 24px 24px;
+    padding: 40px 24px;
+    display: flex; flex-wrap: wrap; gap: 32px; justify-content: center; align-content: flex-start;
+  }
+  .mat canvas {
+    width: min(100%, 440px); height: auto; display: block;
+    background: #fff; box-shadow: 0 10px 30px rgba(0, 0, 0, .35);
+  }
+  .empty {
+    align-self: center; margin: auto; color: rgba(255, 255, 255, .78);
+    font-size: 18px; text-align: center; max-width: 22ch;
+  }
+
+  @media (max-width: 760px) {
+    body { grid-template-columns: minmax(0, 1fr); }
+    .panel { height: auto; position: static; border-right: 0; border-bottom: 1px solid var(--line); padding: 24px 16px 28px; }
+    .mat { padding: 24px 16px; min-height: 60vh; }
+  }
+</style>
 </head>
 <body>
+<main class="panel">
+  <header>
+    <h1>Etichette su A4</h1>
+    <p class="lede">Unisci le etichette di spedizione in fogli da stampare e tagliare.</p>
+  </header>
+
+  <div>
+    <label class="drop" id="drop">
+      <input type="file" id="files" accept="application/pdf,.pdf" multiple>
+      <strong>Trascina qui i PDF delle etichette</strong>
+      <span>oppure tocca per sceglierli. I file restano su questo dispositivo.</span>
+    </label>
+    <p class="status" id="status" role="status"></p>
+  </div>
+
+  <fieldset>
+    <legend>Etichette per foglio</legend>
+    <div class="seg" id="perPage">
+      <label><input type="radio" name="per" value="1"><span>1</span></label>
+      <label><input type="radio" name="per" value="2"><span>2</span></label>
+      <label><input type="radio" name="per" value="4" checked><span>4</span></label>
+      <label><input type="radio" name="per" value="6"><span>6</span></label>
+      <label><input type="radio" name="per" value="8"><span>8</span></label>
+    </div>
+  </fieldset>
+
+  <label class="check"><input type="checkbox" id="notes" checked> Spazio per la scritta sopra ogni etichetta</label>
+
+  <div class="actions">
+    <button class="primary" id="download" disabled>Scarica PDF</button>
+    <p class="hint">Stampa al 100%, senza adattare alla pagina.</p>
+  </div>
+
+  <ol class="labels" id="list"></ol>
+</main>
+
+<section class="mat" id="mat" aria-label="Anteprima dei fogli">
+  <p class="empty">Aggiungi un PDF per vedere il foglio.</p>
+</section>
+
 <script id="core">
 // Pure geometry, no DOM: test.mjs extracts and runs this block.
 // PDF points, origin bottom-left.
@@ -32,13 +218,14 @@ function fitLabel(lw, lh, aw, ah) {
     : { rotate: false, scale: straight };
 }
 
-// Options for pdf-lib drawPage. rotate -90 turns clockwise around (x, y),
-// so a turned label is anchored at the top-left corner of its footprint.
+// Options for pdf-lib drawPage. The label is centred horizontally and pushed to
+// the top of the area, right under its note. rotate -90 turns clockwise around
+// (x, y), so a turned label is anchored at the top-left corner of its footprint.
 function placeLabel(lw, lh, area) {
   const { rotate, scale } = fitLabel(lw, lh, area.w, area.h);
   const width = lw * scale, height = lh * scale;
   const fw = rotate ? height : width, fh = rotate ? width : height;
-  const fx = area.x + (area.w - fw) / 2, fy = area.y + (area.h - fh) / 2;
+  const fx = area.x + (area.w - fw) / 2, fy = area.y + area.h - fh;
   return rotate
     ? { x: fx, y: fy + fh, width, height, rotate: -90 }
     : { x: fx, y: fy, width, height, rotate: 0 };
@@ -59,6 +246,214 @@ function contentBox(data, width, height, threshold = 235) {
     }
   return x1 < 0 ? null : { x0, y0, x1: x1 + 1, y1: y1 + 1 };
 }
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js" integrity="sha384-weMABwrltA6jWR8DDe9Jp5blk+tZQh7ugpCsF3JwSA53WZM9/14PjS5LAJNHNjAI" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" integrity="sha384-/1qUCSGwTur9vjf/z9lmu/eCUYbpOTgSjmpbMQZ1/CtX2v/WcAIKqRv+U1DUCG6e" crossorigin="anonymous"></script>
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+const { PDFDocument, StandardFonts, degrees, grayscale } = PDFLib;
+
+const PAD = 3 * MM;      // breathing room inside each cell, away from the cut lines
+const NOTE_H = 10 * MM;  // note strip above the label
+let labels = [];
+let nextId = 1;
+
+// One label per page that has content. Blank pages are skipped.
+async function loadFile(file) {
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  const src = await PDFDocument.load(bytes, { ignoreEncryption: true });
+  const doc = await pdfjsLib.getDocument({ data: bytes.slice() }).promise;
+  const found = [];
+  for (let i = 0; i < doc.numPages; i++) {
+    const page = await doc.getPage(i + 1);
+    const vp = page.getViewport({ scale: 1.5 });
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.ceil(vp.width);
+    canvas.height = Math.ceil(vp.height);
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    await page.render({ canvasContext: ctx, viewport: vp }).promise;
+    const b = contentBox(ctx.getImageData(0, 0, canvas.width, canvas.height).data, canvas.width, canvas.height);
+    if (!b) continue;
+    // ponytail: ignores /Rotate on the source page; turned pages still fit but text may come out sideways.
+    const [ax, ay] = vp.convertToPdfPoint(b.x0, b.y0);
+    const [bx, by] = vp.convertToPdfPoint(b.x1, b.y1);
+    const [vx0, vy0, vx1, vy1] = page.view;
+    const box = {
+      left: Math.max(vx0, Math.min(ax, bx) - 2),
+      bottom: Math.max(vy0, Math.min(ay, by) - 2),
+      right: Math.min(vx1, Math.max(ax, bx) + 2),
+      top: Math.min(vy1, Math.max(ay, by) + 2),
+    };
+    const tw = b.x1 - b.x0, th = b.y1 - b.y0, k = Math.min(1, 160 / Math.max(tw, th));
+    const thumb = document.createElement('canvas');
+    thumb.width = Math.round(tw * k);
+    thumb.height = Math.round(th * k);
+    thumb.getContext('2d').drawImage(canvas, b.x0, b.y0, tw, th, 0, 0, thumb.width, thumb.height);
+    found.push({ id: nextId++, name: file.name, pageIndex: i, box, thumb: thumb.toDataURL(), src, note: '' });
+  }
+  if (doc.numPages > 1) found.forEach(l => { l.name += `, pagina ${l.pageIndex + 1}`; });
+  return found;
+}
+
+function fitText(text, font, maxW) {
+  const clean = [...text.trim()].map(ch => {
+    try { font.encodeText(ch); return ch; } catch { return '?'; }
+  }).join('');
+  let size = 11;
+  while (size > 7 && font.widthOfTextAtSize(clean, size) > maxW) size -= 0.5;
+  let out = clean;
+  while (out && font.widthOfTextAtSize(out, size) > maxW) out = out.slice(0, -2) + '…';
+  return { text: out, size };
+}
+
+async function buildPdf(list, { perPage, notes }) {
+  const out = await PDFDocument.create();
+  const font = await out.embedFont(StandardFonts.HelveticaBold);
+  const margin = 5 * MM, [cols, rows] = GRIDS[perPage];
+  const cw = (A4.w - 2 * margin) / cols, ch = (A4.h - 2 * margin) / rows;
+  const cut = { thickness: 0.5, color: grayscale(0.6), dashArray: [4, 3] };
+  const noteH = notes ? NOTE_H : 0;
+
+  for (let start = 0; start < list.length; start += perPage) {
+    const page = out.addPage([A4.w, A4.h]);
+    for (let c = 0; c <= cols; c++) {
+      const x = margin + c * cw;
+      page.drawLine({ start: { x, y: margin }, end: { x, y: A4.h - margin }, ...cut });
+    }
+    for (let r = 0; r <= rows; r++) {
+      const y = margin + r * ch;
+      page.drawLine({ start: { x: margin, y }, end: { x: A4.w - margin, y }, ...cut });
+    }
+    const cells = cellRects(perPage, A4, margin);
+    for (const [i, label] of list.slice(start, start + perPage).entries()) {
+      const cell = cells[i];
+      const area = { x: cell.x + PAD, y: cell.y + PAD, w: cell.w - 2 * PAD, h: cell.h - 2 * PAD - noteH };
+      const { left, bottom, right, top } = label.box;
+      const embedded = await out.embedPage(label.src.getPage(label.pageIndex), label.box);
+      const place = placeLabel(right - left, top - bottom, area);
+      page.drawPage(embedded, { ...place, rotate: degrees(place.rotate) });
+      if (!notes) continue;
+      const stripY = area.y + area.h;
+      if (label.note.trim()) {
+        const { text, size } = fitText(label.note, font, area.w);
+        page.drawText(text, { x: area.x, y: stripY + (NOTE_H - size * 0.7) / 2, size, font });
+      } else {
+        page.drawLine({
+          start: { x: area.x, y: stripY + 3 }, end: { x: area.x + area.w, y: stripY + 3 },
+          thickness: 0.5, color: grayscale(0.7),
+        });
+      }
+    }
+  }
+  return out.save();
+}
+
+// ---- UI ----
+const $ = id => document.getElementById(id);
+const settings = () => ({
+  perPage: Number(document.querySelector('input[name="per"]:checked').value),
+  notes: $('notes').checked,
+});
+
+async function addFiles(files) {
+  const errors = [];
+  for (const file of files) {
+    try {
+      const found = await loadFile(file);
+      if (!found.length) errors.push(`${file.name} non contiene etichette: le pagine sono bianche.`);
+      labels.push(...found);
+    } catch (e) {
+      console.error(e);
+      errors.push(`Non riesco a leggere ${file.name}: il file è protetto o danneggiato.`);
+    }
+  }
+  $('status').textContent = errors.join(' ');
+  renderList();
+  renderPreview();
+}
+
+function renderList() {
+  $('list').replaceChildren(...labels.map((l, i) => {
+    const li = document.createElement('li');
+    li.className = 'item';
+    li.innerHTML = `
+      <img alt="">
+      <div>
+        <div class="item-head">
+          <span class="item-name"></span>
+          <button class="remove" type="button">Rimuovi</button>
+        </div>
+        <label for="note-${l.id}">Scritta sopra l'etichetta</label>
+        <input type="text" id="note-${l.id}" maxlength="80" placeholder="Es. maglione blu tg. M">
+      </div>`;
+    li.querySelector('img').src = l.thumb;
+    li.querySelector('.item-name').textContent = `${i + 1}. ${l.name}`;
+    const remove = li.querySelector('.remove');
+    remove.setAttribute('aria-label', `Rimuovi etichetta ${i + 1}`);
+    remove.onclick = () => {
+      labels = labels.filter(x => x !== l);
+      renderList();
+      renderPreview();
+      // keep keyboard focus in the list instead of dropping it on <body>
+      ($('list').querySelectorAll('.remove')[Math.min(i, labels.length - 1)] || $('files')).focus();
+    };
+    const input = li.querySelector('input');
+    input.value = l.note;
+    input.oninput = () => { l.note = input.value; clearTimeout(renderList.t); renderList.t = setTimeout(renderPreview, 300); };
+    return li;
+  }));
+  $('download').disabled = !labels.length;
+}
+
+let renderSeq = 0;
+async function renderPreview() {
+  const seq = ++renderSeq;
+  if (!labels.length) {
+    $('mat').innerHTML = '<p class="empty">Aggiungi un PDF per vedere il foglio.</p>';
+    return;
+  }
+  const bytes = await buildPdf(labels, settings());
+  const doc = await pdfjsLib.getDocument({ data: bytes }).promise;
+  const canvases = [];
+  for (let i = 1; i <= doc.numPages; i++) {
+    const page = await doc.getPage(i);
+    const base = page.getViewport({ scale: 1 });
+    const vp = page.getViewport({ scale: (440 / base.width) * Math.min(2, devicePixelRatio || 1) });
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.ceil(vp.width);
+    canvas.height = Math.ceil(vp.height);
+    canvas.setAttribute('role', 'img');
+    canvas.setAttribute('aria-label', `Foglio ${i} di ${doc.numPages}`);
+    await page.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise;
+    canvases.push(canvas);
+  }
+  if (seq === renderSeq) $('mat').replaceChildren(...canvases);
+}
+
+$('files').onchange = e => { addFiles([...e.target.files]); e.target.value = ''; };
+$('perPage').onchange = renderPreview;
+$('notes').onchange = renderPreview;
+$('download').onclick = async () => {
+  const bytes = await buildPdf(labels, settings());
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([bytes], { type: 'application/pdf' }));
+  a.download = `etichette-${new Date().toISOString().slice(0, 10)}.pdf`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+};
+
+// Dropping anywhere on the page works, not only on the drop zone.
+addEventListener('dragover', e => { e.preventDefault(); $('drop').classList.add('over'); });
+addEventListener('dragleave', e => { if (!e.relatedTarget) $('drop').classList.remove('over'); });
+addEventListener('drop', e => {
+  e.preventDefault();
+  $('drop').classList.remove('over');
+  const pdfs = [...e.dataTransfer.files].filter(f => f.type === 'application/pdf' || /\.pdf$/i.test(f.name));
+  if (pdfs.length) addFiles(pdfs);
+});
 </script>
 </body>
 </html>

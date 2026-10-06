@@ -18,11 +18,12 @@ assert.deepEqual(fitLabel(100, 100, 300, 300), { rotate: false, scale: 1 });
 assert.deepEqual(fitLabel(100, 200, 300, 150), { rotate: true, scale: 1 });
 assert.equal(fitLabel(200, 100, 100, 100).rotate, false); // same scale: no rotation
 
-// clockwise rotation: the 200x100 footprint is centred in the 300x150 area
+// footprint centred horizontally, pushed to the top so it sits right under its note;
+// clockwise rotation anchors at the footprint's top-left corner
 assert.deepEqual(placeLabel(100, 200, { x: 0, y: 0, w: 300, h: 150 }),
-  { x: 50, y: 125, width: 100, height: 200, rotate: -90 });
+  { x: 50, y: 150, width: 100, height: 200, rotate: -90 });
 assert.deepEqual(placeLabel(100, 100, { x: 0, y: 0, w: 300, h: 300 }),
-  { x: 100, y: 100, width: 100, height: 100, rotate: 0 });
+  { x: 100, y: 200, width: 100, height: 100, rotate: 0 });
 
 // bounding box of non-white pixels
 const px = (w, h, dark) => {
