@@ -48,6 +48,6 @@ Test (Node 18 o più recente):
 node test.mjs
 ```
 
-## Autore
+## Licenza
 
-[Ismail Barakat](https://ismailbarakat.dev)
+[MIT](LICENSE) © 2026 [Ismail Barakat](https://ismailbarakat.dev)
