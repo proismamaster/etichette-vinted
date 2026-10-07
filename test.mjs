@@ -25,6 +25,14 @@ assert.deepEqual(placeLabel(100, 200, { x: 0, y: 0, w: 300, h: 150 }),
 assert.deepEqual(placeLabel(100, 100, { x: 0, y: 0, w: 300, h: 300 }),
   { x: 100, y: 200, width: 100, height: 100, rotate: 0 });
 
+// manual quarter turns add to the automatic one (clockwise)
+assert.deepEqual(placeLabel(100, 100, { x: 0, y: 0, w: 300, h: 300 }, 2),
+  { x: 200, y: 300, width: 100, height: 100, rotate: -180 });
+assert.deepEqual(placeLabel(100, 200, { x: 0, y: 0, w: 300, h: 150 }, 2),
+  { x: 250, y: 50, width: 100, height: 200, rotate: -270 });
+assert.deepEqual(placeLabel(100, 200, { x: 0, y: 0, w: 300, h: 150 }, 3),
+  { x: 112.5, y: 0, width: 75, height: 150, rotate: 0 }); // 1 auto + 3 manual = upright, scaled to fit
+
 // bounding box of non-white pixels
 const px = (w, h, dark) => {
   const d = new Uint8ClampedArray(w * h * 4).fill(255);

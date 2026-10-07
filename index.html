@@ -6,190 +6,330 @@
 <title>Etichette su A4</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
+  /* Cool neutrals, thin lines, one amber accent. Panel left, A4 preview right; tabs on phones. */
   :root {
-    --paper: #ffffff;
-    --bg: #eef1ef;
-    --ink: #18201c;
-    --muted: #56615b;
-    --line: #d5dbd7;
-    --mat: #2e5446;
-    --mat-grid: rgba(255, 255, 255, .08);
-    --mat-grid-strong: rgba(255, 255, 255, .16);
-    --accent: #2e5446;
-    --accent-ink: #ffffff;
-    --focus: #e8a317;
-    --error: #a1301e;
+    --bg: #eaedf1; --paper: #fbfcfd; --ink: #14191f; --muted: #5e646c;
+    --line: #dee2e5; --line2: #c0c5c9; --soft: #eef0f3; --field: #ffffff;
+    --acc: #fcbb20; --acch: #efae00; --acc-ink: #16191f; --wash: rgba(252, 187, 32, .2); --err: #be2323;
+    --sans: "IBM Plex Sans", system-ui, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, monospace;
+    --sw: min(520px, 100%);
     color-scheme: light;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-      --paper: #161b19; --bg: #0f1312; --ink: #e5eae7; --muted: #9ba6a0; --line: #2d3531;
-      --mat: #1d362d; --accent: #4a8a70; --accent-ink: #0b1210; --error: #f08a74;
+      --bg: #0a0d10; --paper: #13161a; --ink: #eceff1; --muted: #9fa5ac;
+      --line: #2a2e33; --line2: #43484e; --soft: #1e2226; --field: #0c0f12;
+      --acch: #ffc837; --wash: rgba(252, 187, 32, .22); --err: #fe8c80;
       color-scheme: dark;
     }
   }
   :root[data-theme="dark"] {
-    --paper: #161b19; --bg: #0f1312; --ink: #e5eae7; --muted: #9ba6a0; --line: #2d3531;
-    --mat: #1d362d; --accent: #4a8a70; --accent-ink: #0b1210; --error: #f08a74;
+    --bg: #0a0d10; --paper: #13161a; --ink: #eceff1; --muted: #9fa5ac;
+    --line: #2a2e33; --line2: #43484e; --soft: #1e2226; --field: #0c0f12;
+    --acch: #ffc837; --wash: rgba(252, 187, 32, .22); --err: #fe8c80;
     color-scheme: dark;
   }
 
-  * { box-sizing: border-box; }
+  *, *::before, *::after { box-sizing: border-box; }
   html, body { margin: 0; }
-  body {
-    background: var(--bg);
-    color: var(--ink);
-    font: 400 16px/1.5 "Archivo", system-ui, sans-serif;
-    min-height: 100dvh;
-    display: grid;
-    grid-template-columns: minmax(0, 400px) minmax(0, 1fr);
-  }
-  :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+  body { background: var(--bg); color: var(--ink); font: 400 15px/1.45 var(--sans); }
+  button, input { font: inherit; color: inherit; -webkit-tap-highlight-color: transparent; }
+  button { cursor: pointer; }
+  :focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  input[type="text"]:focus-visible { outline-offset: -1px; }
+  input::placeholder { color: var(--muted); opacity: 1; }
+  [hidden] { display: none !important; }
+  .mono { font-family: var(--mono); }
+  .muted { color: var(--muted); }
+  .visually-hidden { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
 
-  .panel {
-    background: var(--paper);
-    border-right: 1px solid var(--line);
-    padding: 28px 24px 40px;
-    display: flex; flex-direction: column; gap: 24px;
-    height: 100dvh; overflow-y: auto; position: sticky; top: 0;
-  }
-  h1 {
-    margin: 0;
-    font-size: 30px; line-height: 1.1; font-weight: 700;
-    font-stretch: 78%; letter-spacing: -.01em;
-  }
-  .lede { margin: 6px 0 0; color: var(--muted); font-size: 15px; }
+  .app { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto; min-height: 100dvh; }
 
-  .drop {
-    display: block; cursor: pointer;
-    border: 2px dashed var(--line); border-radius: 10px;
-    padding: 20px 16px; text-align: center;
+  /* ---- panel ---- */
+  .panel { display: flex; flex-direction: column; min-height: 0; background: var(--paper); }
+  .head { flex: none; padding: 24px 16px 4px; }
+  h1 { margin: 0; font-size: 22px; line-height: 1.15; font-weight: 600; letter-spacing: -.015em; }
+  .lede { margin: 6px 0 0; font-size: 14px; line-height: 1.45; color: var(--muted); text-wrap: pretty; }
+  .body { flex: 1 1 auto; min-height: 0; padding: 16px 16px 24px; display: flex; flex-direction: column; }
+
+  .add-wrap { padding-bottom: 24px; }
+  .add {
+    position: relative; display: flex; align-items: center; gap: 14px; padding: 16px;
+    border: 1px solid var(--line2); border-radius: 10px; background: var(--field); cursor: pointer;
   }
-  .drop strong { display: block; font-weight: 600; }
-  .drop span { color: var(--muted); font-size: 14px; }
-  .drop:hover, .drop.over { border-color: var(--accent); }
-  .drop:focus-within { outline: 3px solid var(--focus); outline-offset: 2px; }
-  .drop input { position: absolute; opacity: 0; width: 1px; height: 1px; }
-  .status { margin: 8px 0 0; font-size: 14px; color: var(--error); }
+  .add:hover { border-color: var(--ink); }
+  .add:focus-within { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .add-icon { flex: none; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 8px; background: var(--soft); }
+  .add-empty { display: block; min-width: 0; }
+  .add-empty strong { display: block; font-size: 15px; font-weight: 600; line-height: 1.3; }
+  .add-empty span { display: block; margin-top: 2px; font-size: 13px; line-height: 1.4; color: var(--muted); }
+  .add-more { display: none; flex: 1 1 auto; font-size: 15px; font-weight: 600; }
+  .has-labels .add { min-height: 48px; padding: 0 14px; }
+  .has-labels .add-icon { width: 28px; height: 28px; }
+  .has-labels .add-empty { display: none; }
+  .has-labels .add-more { display: block; }
+  .over .add { border-color: var(--acc); background: var(--wash); }
+  .status { margin: 8px 0 0; font-size: 13px; line-height: 1.4; color: var(--err); }
   .status:empty { display: none; }
 
-  fieldset { border: 0; margin: 0; padding: 0; }
-  legend, .field-label { font-weight: 600; font-size: 15px; padding: 0; margin-bottom: 8px; }
-  .seg { display: flex; gap: 6px; }
-  .seg label { flex: 1; }
-  .seg input { position: absolute; opacity: 0; width: 1px; height: 1px; }
-  .seg span {
-    display: grid; place-items: center; height: 44px; cursor: pointer;
-    border: 1px solid var(--line); border-radius: 8px;
-    font-weight: 600; font-variant-numeric: tabular-nums;
+  .settings { display: flex; flex-direction: column; gap: 14px; padding-top: 24px; border-top: 1px solid var(--line); }
+  .row-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 28px; margin-bottom: 8px; }
+  .row-head label, .row-head > span:first-child { font-size: 14px; font-weight: 600; }
+  .link {
+    border: 0; background: transparent; padding: 14px 0; margin: -14px 0; font-size: 13px; white-space: nowrap;
+    color: var(--muted); text-decoration: underline; text-underline-offset: 3px;
   }
-  .seg input:checked + span { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
-  .seg input:focus-visible + span { outline: 3px solid var(--focus); outline-offset: 2px; }
-  .check { display: flex; align-items: center; gap: 10px; min-height: 44px; cursor: pointer; }
-  .check input { width: 20px; height: 20px; accent-color: var(--accent); }
-
-  .actions { display: flex; flex-direction: column; gap: 6px; }
-  .primary {
-    height: 48px; border: 0; border-radius: 8px; cursor: pointer;
-    background: var(--accent); color: var(--accent-ink);
-    font: 600 16px/1 "Archivo", system-ui, sans-serif;
+  .link:hover { color: var(--ink); }
+  .per { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+  .per button {
+    height: 68px; padding: 0; border: 1px solid var(--line2); border-radius: 8px; background: var(--field); color: var(--ink);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px;
+    transition: background .12s, border-color .12s;
   }
-  .primary:disabled { opacity: .45; cursor: not-allowed; }
-  .hint { margin: 0; color: var(--muted); font-size: 14px; }
+  .per button[aria-checked="true"] { background: var(--acc); border-color: var(--acc); color: var(--acc-ink); }
+  .glyph { display: grid; width: 18px; height: 26px; padding: 2px; gap: 1.5px; border: 1px solid currentColor; border-radius: 1px; }
+  .glyph i { display: block; background: currentColor; opacity: .4; }
+  .per .n { font-family: var(--mono); font-size: 13px; font-weight: 500; line-height: 1; }
+  .check { display: flex; align-items: center; gap: 12px; min-height: 44px; cursor: pointer; font-size: 15px; line-height: 1.35; }
+  .check input { flex: none; width: 20px; height: 20px; margin: 0; accent-color: var(--ink); }
+  .range-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+  .range-head label { font-size: 14px; font-weight: 600; }
+  .range-head span { font-size: 13px; white-space: nowrap; }
+  #margini { display: block; width: 100%; height: 44px; margin: 0; accent-color: var(--ink); }
+  .hint { margin: 2px 0 0; font-size: 13px; line-height: 1.4; color: var(--muted); }
 
-  .labels { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+  .labels-group { margin-top: 28px; }
+  .list-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
+  .list-head h2 { margin: 0; font-size: 14px; font-weight: 600; white-space: nowrap; }
+  .list-head h2 span { margin-left: 4px; font-size: 13px; font-weight: 400; }
+  .list-head > span { font-size: 13px; white-space: nowrap; }
+  .list { list-style: none; margin: 0; padding: 0; position: relative; }
+  .list.dragging { user-select: none; }
   .item {
-    display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 12px;
-    padding-top: 12px; border-top: 1px solid var(--line);
+    position: relative; display: grid; grid-template-columns: 28px 52px minmax(0, 1fr); column-gap: 10px;
+    padding: 10px 0; border-top: 1px solid var(--line); background: transparent;
   }
-  .item img {
-    width: 64px; height: 64px; object-fit: contain;
-    background: #fff; border: 1px solid var(--line); border-radius: 4px;
+  .list.dragging .item { transition: transform .16s ease; }
+  .list.dragging .item.lifted {
+    transition: none; z-index: 3; border-radius: 10px; background: var(--paper);
+    box-shadow: 0 12px 28px -8px rgba(20, 25, 31, .35), 0 0 0 1px var(--line2);
   }
-  .item-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
-  .item-name { font-weight: 600; font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .remove {
-    background: none; border: 0; padding: 0 4px; min-height: 44px; cursor: pointer;
-    color: var(--muted); font: 500 14px/1 "Archivo", system-ui, sans-serif; text-decoration: underline;
+  .handle {
+    touch-action: none; width: 44px; height: 44px; margin: 0 -8px; padding: 0; border: 0; border-radius: 6px;
+    background: transparent; color: var(--muted); display: grid; place-items: center; cursor: grab;
   }
-  .remove:hover { color: var(--error); }
-  .item label { display: block; font-size: 13px; color: var(--muted); margin: 2px 0 4px; }
-  .item input[type="text"] {
-    width: 100%; height: 40px; padding: 0 10px;
-    border: 1px solid var(--line); border-radius: 6px;
-    background: var(--paper); color: var(--ink); font: inherit; font-size: 15px;
+  .handle:hover { color: var(--ink); }
+  .handle span {
+    display: block; width: 10px; height: 15px;
+    background-image: radial-gradient(circle, currentColor 1.35px, transparent 1.6px); background-size: 5px 5px;
   }
+  .thumb { position: relative; width: 52px; height: 68px; border: 1px solid var(--line2); border-radius: 4px; background: #fff; overflow: hidden; }
+  .thumb img { position: absolute; transform-origin: 0 0; max-width: none; }
+  .item-main { min-width: 0; }
+  .item-top { display: flex; align-items: center; gap: 2px; min-height: 44px; }
+  .item-n { flex: none; width: 20px; font-family: var(--mono); font-size: 12px; color: var(--muted); }
+  .item-name { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--mono); font-size: 13px; font-weight: 500; }
+  .rot {
+    flex: none; margin-right: 2px; padding: 2px 5px; border: 1px solid var(--line2); border-radius: 4px;
+    font-family: var(--mono); font-size: 11px; line-height: 1.2; color: var(--muted);
+  }
+  .icon-btn {
+    flex: none; display: grid; place-items: center; width: 44px; height: 44px; margin: 0; padding: 0;
+    border: 0; border-radius: 10px; background: transparent; color: var(--muted);
+  }
+  .icon-btn:hover { background: var(--soft); color: var(--ink); }
+  .icon-btn.remove:hover { color: var(--err); }
+  .note {
+    display: block; width: 100%; height: 44px; margin: 4px 0 0; padding: 0 12px;
+    border: 1px solid var(--line2); border-radius: 8px; background: var(--field); color: var(--ink); font-size: 16px;
+  }
+  .note:focus { border-color: var(--ink); }
 
-  /* The cutting mat: the one loud element. */
-  .mat {
-    background-color: var(--mat);
-    background-image:
-      linear-gradient(var(--mat-grid-strong) 1px, transparent 1px),
-      linear-gradient(90deg, var(--mat-grid-strong) 1px, transparent 1px),
-      linear-gradient(var(--mat-grid) 1px, transparent 1px),
-      linear-gradient(90deg, var(--mat-grid) 1px, transparent 1px);
-    background-size: 120px 120px, 120px 120px, 24px 24px, 24px 24px;
-    padding: 40px 24px;
-    display: flex; flex-wrap: wrap; gap: 32px; justify-content: center; align-content: flex-start;
+  .foot { display: none; }
+  .dl {
+    display: flex; align-items: center; justify-content: center; gap: 10px; height: 48px;
+    border: 0; border-radius: 8px; background: var(--acc); color: var(--acc-ink); font-size: 16px; font-weight: 600;
   }
-  .mat canvas {
-    width: min(100%, 440px); height: auto; display: block;
-    background: #fff; box-shadow: 0 10px 30px rgba(0, 0, 0, .35);
-  }
-  .empty {
-    align-self: center; margin: auto; color: rgba(255, 255, 255, .78);
-    font-size: 18px; text-align: center; max-width: 22ch;
-  }
+  .dl:hover { background: var(--acch); }
+  .dl:disabled { background: var(--soft); color: var(--muted); pointer-events: none; }
+  .dl span { white-space: nowrap; }
+  .foot p { margin: 0; font-size: 13px; line-height: 1.4; color: var(--muted); }
 
-  @media (max-width: 760px) {
-    body { grid-template-columns: minmax(0, 1fr); }
-    .panel { height: auto; position: static; border-right: 0; border-bottom: 1px solid var(--line); padding: 24px 16px 28px; }
-    .mat { padding: 24px 16px; min-height: 60vh; }
+  /* ---- preview ---- */
+  .preview { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+  .over .preview { box-shadow: inset 0 0 0 2px var(--acc); }
+  .prev-head { flex: none; display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 20px 16px 0; }
+  .prev-head h2 { margin: 0; font-size: 14px; font-weight: 600; white-space: nowrap; }
+  .prev-head span { font-size: 13px; white-space: nowrap; }
+  .sheets {
+    flex: 1 0 auto; display: flex; flex-wrap: wrap; justify-content: center; align-content: flex-start;
+    gap: 40px 32px; padding: 16px 16px 32px;
+  }
+  .sheet-fig { flex: none; width: var(--sw); margin: 0; }
+  .is-empty .sheet-fig { width: calc(var(--sw) * .6); }
+  .sheet {
+    position: relative; width: 100%; aspect-ratio: 595.28 / 841.89; background: #fff; overflow: hidden;
+    box-shadow: 0 0 0 1px rgba(20, 25, 31, .12), 0 14px 34px -14px rgba(20, 25, 31, .35);
+  }
+  .sheet canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .cell { position: absolute; }
+  .cell.on { background: var(--wash); box-shadow: inset 0 0 0 2px var(--acc); }
+  .chip {
+    position: absolute; right: 4px; top: 4px; display: none; place-items: center; min-width: 20px; height: 20px; padding: 0 5px;
+    border-radius: 4px; background: var(--acc); color: var(--acc-ink); font-family: var(--mono); font-size: 12px; font-weight: 600; line-height: 1;
+  }
+  .cell.on .chip { display: grid; }
+  .sheet-fig figcaption {
+    display: flex; justify-content: space-between; gap: 12px; margin-top: 12px;
+    font-family: var(--mono); font-size: 12.5px; white-space: nowrap; color: var(--muted);
+  }
+  .empty { display: none; flex: 0 0 100%; flex-direction: column; align-items: center; gap: 14px; text-align: center; }
+  .is-empty .empty { display: flex; }
+  .empty p { margin: 0; max-width: 24ch; color: var(--muted); text-wrap: balance; }
+  .add-small {
+    position: relative; display: flex; align-items: center; gap: 8px; height: 44px; padding: 0 18px;
+    border: 1px solid var(--line2); border-radius: 8px; background: var(--field); font-size: 15px; font-weight: 600; cursor: pointer;
+  }
+  .add-small:hover { border-color: var(--ink); }
+  .add-small:focus-within { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .print-hint { flex: 0 0 100%; margin: 0; text-align: center; font-size: 13px; line-height: 1.4; color: var(--muted); }
+  .is-empty .print-hint { display: none; }
+
+  /* ---- phone bar ---- */
+  .bar {
+    display: flex; position: sticky; bottom: 0; z-index: 20; align-items: center; gap: 8px;
+    padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0px));
+    background: var(--paper); border-top: 1px solid var(--line);
+  }
+  .tabs { flex: 1 1 0; min-width: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 2px; padding: 3px; border-radius: 10px; background: var(--soft); }
+  .tabs button {
+    display: flex; align-items: center; justify-content: center; gap: 6px; height: 44px; padding: 0 4px;
+    border: 0; border-radius: 8px; background: transparent; color: var(--muted); font-size: 14px; font-weight: 500;
+  }
+  .tabs button[aria-selected="true"] {
+    background: var(--field); color: var(--ink); font-weight: 600;
+    box-shadow: 0 1px 2px rgba(20, 25, 31, .18), 0 0 0 1px var(--line);
+  }
+  .tabs .mono { font-size: 12px; font-weight: 400; color: var(--muted); }
+  .bar .dl { flex: none; height: 50px; padding: 0 16px; gap: 8px; border-radius: 10px; font-size: 15px; }
+
+  @media (max-width: 879.98px) {
+    .app[data-view="sheet"] .panel, .app[data-view="labels"] .preview { display: none; }
+  }
+  @media (max-width: 359.98px) { .tabs .mono { display: none; } }
+  @media (min-width: 880px) {
+    :root { --sw: min(520px, 100%, max(360px, calc((100dvh - 190px) / 1.4142))); }
+    .app { grid-template-columns: 400px minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); height: 100dvh; }
+    .panel { height: 100dvh; border-right: 1px solid var(--line); }
+    .head { padding: 28px 24px 8px; }
+    .body { overflow-y: auto; padding: 16px 24px 28px; }
+    .note { height: 40px; font-size: 14px; }
+    .foot { display: flex; flex: none; flex-direction: column; gap: 10px; padding: 16px 24px 20px; border-top: 1px solid var(--line); background: var(--paper); }
+    .preview { overflow-y: auto; }
+    .prev-head { padding: 24px 40px 0; }
+    .sheets { padding: 24px 40px 56px; }
+    .print-hint, .bar { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .per button, .list.dragging .item { transition: none; }
   }
 </style>
 </head>
 <body>
-<main class="panel">
-  <header>
+<div class="app" id="app" data-view="labels">
+
+<aside class="panel" aria-label="Impostazioni">
+  <header class="head">
     <h1>Etichette su A4</h1>
     <p class="lede">Unisci le etichette di spedizione in fogli da stampare e tagliare.</p>
   </header>
 
-  <div>
-    <label class="drop" id="drop">
-      <input type="file" id="files" accept="application/pdf,.pdf" multiple>
-      <strong>Trascina qui i PDF delle etichette</strong>
-      <span>oppure tocca per sceglierli. I file restano su questo dispositivo.</span>
-    </label>
-    <p class="status" id="status" role="status"></p>
-  </div>
-
-  <fieldset>
-    <legend>Etichette per foglio</legend>
-    <div class="seg" id="perPage">
-      <label><input type="radio" name="per" value="1"><span>1</span></label>
-      <label><input type="radio" name="per" value="2"><span>2</span></label>
-      <label><input type="radio" name="per" value="4" checked><span>4</span></label>
-      <label><input type="radio" name="per" value="6"><span>6</span></label>
-      <label><input type="radio" name="per" value="8"><span>8</span></label>
+  <div class="body">
+    <div class="add-wrap">
+      <label class="add">
+        <input type="file" id="files" class="visually-hidden" accept="application/pdf,.pdf" multiple>
+        <span class="add-icon" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        </span>
+        <span class="add-empty">
+          <strong>Trascina qui i PDF delle etichette</strong>
+          <span>oppure tocca per sceglierli. I file restano su questo dispositivo.</span>
+        </span>
+        <span class="add-more">Aggiungi altri PDF</span>
+      </label>
+      <p class="status" id="status" role="status"></p>
     </div>
-  </fieldset>
 
-  <label class="check"><input type="checkbox" id="notes" checked> Spazio per la scritta sopra ogni etichetta</label>
+    <div class="settings" role="group" aria-label="Impostazioni del foglio">
+      <div>
+        <div class="row-head">
+          <span id="per-label">Etichette per foglio</span>
+          <button type="button" class="link" id="reset" hidden>Ripristina</button>
+        </div>
+        <div class="per" id="per" role="radiogroup" aria-labelledby="per-label"></div>
+      </div>
 
-  <div class="actions">
-    <button class="primary" id="download" disabled>Scarica PDF</button>
-    <p class="hint">Stampa al 100%, senza adattare alla pagina.</p>
+      <label class="check">
+        <input type="checkbox" id="notes">
+        <span>Spazio per la scritta sopra ogni etichetta</span>
+      </label>
+
+      <div>
+        <div class="range-head">
+          <label for="margini">Margini</label>
+          <span class="mono muted" id="margin-text" aria-live="polite"></span>
+        </div>
+        <input id="margini" type="range" min="0" max="15" step="1">
+        <p class="hint" id="low-margin" hidden>Sotto i 4 mm molte stampanti tagliano il bordo.</p>
+      </div>
+    </div>
+
+    <div class="labels-group" role="group" aria-label="Etichette">
+      <div class="list-head" id="list-head" hidden>
+        <h2>Etichette <span class="mono muted" id="count"></span></h2>
+        <span class="muted" id="reorder-hint">Trascina per riordinare</span>
+      </div>
+      <ol class="list" id="list"></ol>
+    </div>
   </div>
 
-  <ol class="labels" id="list"></ol>
+  <footer class="foot">
+    <button type="button" class="dl" data-dl="long" disabled></button>
+    <p>Stampa al 100%, senza adattare alla pagina.</p>
+  </footer>
+</aside>
+
+<main class="preview" aria-label="Anteprima">
+  <div class="prev-head">
+    <h2>Anteprima dei fogli</h2>
+    <span class="mono muted">A4 · 210 × 297 mm</span>
+  </div>
+  <div class="sheets">
+    <div id="sheets" style="display: contents"></div>
+    <div class="empty">
+      <p>Aggiungi un PDF per vedere il foglio.</p>
+      <label class="add-small">
+        <input type="file" id="files2" class="visually-hidden" accept="application/pdf,.pdf" multiple>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+        Aggiungi PDF
+      </label>
+    </div>
+    <p class="print-hint">Stampa al 100%, senza adattare alla pagina.</p>
+  </div>
 </main>
 
-<section class="mat" id="mat" aria-label="Anteprima dei fogli">
-  <p class="empty">Aggiungi un PDF per vedere il foglio.</p>
-</section>
+<nav class="bar" aria-label="Vista">
+  <div class="tabs" role="tablist">
+    <button type="button" role="tab" id="tab-labels" data-view="labels">Etichette <span class="mono" id="n-labels"></span></button>
+    <button type="button" role="tab" id="tab-sheet" data-view="sheet">Anteprima <span class="mono" id="n-sheets"></span></button>
+  </div>
+  <button type="button" class="dl" data-dl="short" disabled></button>
+</nav>
+
+</div>
 
 <script id="core">
 // Pure geometry, no DOM: test.mjs extracts and runs this block.
@@ -219,16 +359,20 @@ function fitLabel(lw, lh, aw, ah) {
 }
 
 // Options for pdf-lib drawPage. The label is centred horizontally and pushed to
-// the top of the area, right under its note. rotate -90 turns clockwise around
-// (x, y), so a turned label is anchored at the top-left corner of its footprint.
-function placeLabel(lw, lh, area) {
-  const { rotate, scale } = fitLabel(lw, lh, area.w, area.h);
+// the top of the area, right under its note. `turns` adds clockwise quarter turns
+// to the automatic one. pdf-lib rotates around (x, y), so the anchor moves to the
+// footprint corner where the label's own bottom-left ends up.
+function placeLabel(lw, lh, area, turns = 0) {
+  const k = ((fitLabel(lw, lh, area.w, area.h).rotate ? 1 : 0) + turns) % 4, odd = k % 2;
+  const scale = odd ? Math.min(area.w / lh, area.h / lw, 1) : Math.min(area.w / lw, area.h / lh, 1);
   const width = lw * scale, height = lh * scale;
-  const fw = rotate ? height : width, fh = rotate ? width : height;
+  const fw = odd ? height : width, fh = odd ? width : height;
   const fx = area.x + (area.w - fw) / 2, fy = area.y + area.h - fh;
-  return rotate
-    ? { x: fx, y: fy + fh, width, height, rotate: -90 }
-    : { x: fx, y: fy, width, height, rotate: 0 };
+  return {
+    x: [fx, fx, fx + fw, fx + fw][k],
+    y: [fy, fy + fh, fy + fh, fy][k],
+    width, height, rotate: k ? -90 * k : 0,
+  };
 }
 
 // Bounding box of non-white pixels in RGBA data (x1, y1 exclusive), null if blank.
@@ -256,8 +400,17 @@ const { PDFDocument, StandardFonts, degrees, grayscale } = PDFLib;
 
 const PAD = 3 * MM;      // breathing room inside each cell, away from the cut lines
 const NOTE_H = 10 * MM;  // note strip above the label
+const KEY = 'etichette-a4:v1';
+const DEFAULTS = { perPage: 4, notes: true, margin: 5 };
 let labels = [];
 let nextId = 1;
+let opts = { ...DEFAULTS };
+try {
+  const saved = JSON.parse(localStorage.getItem(KEY)) || {};
+  if (GRIDS[saved.perPage]) opts.perPage = saved.perPage;
+  if (saved.notes === false) opts.notes = false;
+  if (Number.isFinite(saved.margin)) opts.margin = Math.max(0, Math.min(15, Math.round(saved.margin)));
+} catch {}
 
 // One label per page that has content. Blank pages are skipped.
 async function loadFile(file) {
@@ -292,7 +445,7 @@ async function loadFile(file) {
     thumb.width = Math.round(tw * k);
     thumb.height = Math.round(th * k);
     thumb.getContext('2d').drawImage(canvas, b.x0, b.y0, tw, th, 0, 0, thumb.width, thumb.height);
-    found.push({ id: nextId++, name: file.name, pageIndex: i, box, thumb: thumb.toDataURL(), src, note: '' });
+    found.push({ id: nextId++, name: file.name, pageIndex: i, box, thumb: thumb.toDataURL(), src, note: '', turns: 0 });
   }
   if (doc.numPages > 1) found.forEach(l => { l.name += `, pagina ${l.pageIndex + 1}`; });
   return found;
@@ -309,15 +462,17 @@ function fitText(text, font, maxW) {
   return { text: out, size };
 }
 
-async function buildPdf(list, { perPage, notes }) {
+// Always at least one sheet, so the empty preview still shows the cut grid.
+async function buildPdf(list, { perPage, notes, margin: marginMm }) {
   const out = await PDFDocument.create();
   const font = await out.embedFont(StandardFonts.HelveticaBold);
-  const margin = 5 * MM, [cols, rows] = GRIDS[perPage];
+  const margin = marginMm * MM, [cols, rows] = GRIDS[perPage];
   const cw = (A4.w - 2 * margin) / cols, ch = (A4.h - 2 * margin) / rows;
   const cut = { thickness: 0.5, color: grayscale(0.6), dashArray: [4, 3] };
   const noteH = notes ? NOTE_H : 0;
+  const cells = cellRects(perPage, A4, margin);
 
-  for (let start = 0; start < list.length; start += perPage) {
+  for (let start = 0; start === 0 || start < list.length; start += perPage) {
     const page = out.addPage([A4.w, A4.h]);
     for (let c = 0; c <= cols; c++) {
       const x = margin + c * cw;
@@ -327,13 +482,12 @@ async function buildPdf(list, { perPage, notes }) {
       const y = margin + r * ch;
       page.drawLine({ start: { x: margin, y }, end: { x: A4.w - margin, y }, ...cut });
     }
-    const cells = cellRects(perPage, A4, margin);
     for (const [i, label] of list.slice(start, start + perPage).entries()) {
       const cell = cells[i];
       const area = { x: cell.x + PAD, y: cell.y + PAD, w: cell.w - 2 * PAD, h: cell.h - 2 * PAD - noteH };
       const { left, bottom, right, top } = label.box;
       const embedded = await out.embedPage(label.src.getPage(label.pageIndex), label.box);
-      const place = placeLabel(right - left, top - bottom, area);
+      const place = placeLabel(right - left, top - bottom, area, label.turns);
       page.drawPage(embedded, { ...place, rotate: degrees(place.rotate) });
       if (!notes) continue;
       const stripY = area.y + area.h;
@@ -353,14 +507,247 @@ async function buildPdf(list, { perPage, notes }) {
 
 // ---- UI ----
 const $ = id => document.getElementById(id);
-const settings = () => ({
-  perPage: Number(document.querySelector('input[name="per"]:checked').value),
-  notes: $('notes').checked,
-});
+const app = $('app');
+const wide = matchMedia('(min-width: 880px)');
+const pct = (v, t) => (v / t * 100).toFixed(3) + '%';
+const ICON_DL = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg>';
+const ICON_OK = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+let hover = null, dragging = false, dlState = 'idle';
+
+function setOpts(patch) {
+  Object.assign(opts, patch);
+  try { localStorage.setItem(KEY, JSON.stringify(opts)); } catch {}
+  renderControls();
+  renderPreview();
+}
+
+// Sheet-size buttons, each with a small drawing of its grid.
+$('per').append(...[1, 2, 4, 6, 8].map(n => {
+  const [c, r] = GRIDS[n];
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.setAttribute('role', 'radio');
+  b.dataset.n = n;
+  b.setAttribute('aria-label', n === 1 ? '1 etichetta per foglio' : `${n} etichette per foglio`);
+  b.innerHTML = `<span class="glyph" aria-hidden="true" style="grid-template-columns: repeat(${c}, 1fr); grid-template-rows: repeat(${r}, 1fr)">${'<i></i>'.repeat(c * r)}</span><span class="n">${n}</span>`;
+  b.onclick = () => setOpts({ perPage: n });
+  return b;
+}));
+
+function renderControls() {
+  const n = labels.length, sheets = Math.ceil(n / opts.perPage);
+  for (const b of $('per').children) b.setAttribute('aria-checked', String(Number(b.dataset.n) === opts.perPage));
+  $('notes').checked = opts.notes;
+  $('margini').value = opts.margin;
+  $('margin-text').textContent = `${opts.margin} mm`;
+  $('low-margin').hidden = opts.margin >= 4;
+  $('reset').hidden = opts.perPage === DEFAULTS.perPage && opts.notes === DEFAULTS.notes && opts.margin === DEFAULTS.margin;
+  app.classList.toggle('has-labels', n > 0);
+  app.classList.toggle('is-empty', n === 0);
+  $('list-head').hidden = n === 0;
+  $('count').textContent = n;
+  $('reorder-hint').hidden = n < 2;
+  $('n-labels').textContent = n;
+  $('n-sheets').textContent = sheets;
+  for (const t of document.querySelectorAll('[role="tab"]')) t.setAttribute('aria-selected', String(t.dataset.view === app.dataset.view));
+  renderDownload();
+}
+
+function renderDownload() {
+  const text = {
+    long: { idle: 'Scarica PDF', busy: 'Preparo il PDF…', done: 'PDF scaricato' },
+    short: { idle: 'Scarica PDF', busy: 'Preparo…', done: 'Scaricato' },
+  };
+  for (const b of document.querySelectorAll('[data-dl]')) {
+    b.disabled = !labels.length;
+    b.innerHTML = (dlState === 'done' ? ICON_OK : dlState === 'idle' ? ICON_DL : '') + '<span></span>';
+    b.querySelector('span').textContent = text[b.dataset.dl][dlState];
+  }
+}
+
+// Thumbnail inside a 50x66 box, turned by the manual quarter turns only.
+function thumbStyle(l) {
+  const BW = 50, BH = 66, P = 4, k = l.turns % 4, odd = k % 2;
+  const w = l.box.right - l.box.left, h = l.box.top - l.box.bottom;
+  const sc = Math.min((BW - 2 * P) / (odd ? h : w), (BH - 2 * P) / (odd ? w : h));
+  const W = w * sc, H = h * sc, fw = odd ? H : W, fh = odd ? W : H;
+  const fx = (BW - fw) / 2, fy = (BH - fh) / 2;
+  return `left: ${[fx, fx + H, fx + W, fx][k]}px; top: ${[fy, fy, fy + H, fy + W][k]}px; width: ${W}px; height: ${H}px; transform: rotate(${k * 90}deg)`;
+}
+
+function renderList() {
+  $('list').replaceChildren(...labels.map((l, i) => {
+    const li = document.createElement('li');
+    li.className = 'item';
+    li.dataset.id = l.id;
+    li.innerHTML = `
+      <button type="button" class="handle" title="Trascina o usa le frecce su e giù"><span aria-hidden="true"></span></button>
+      <div class="thumb" aria-hidden="true"><img alt=""></div>
+      <div class="item-main">
+        <div class="item-top">
+          <span class="item-n">${i + 1}</span>
+          <span class="item-name"></span>
+          ${l.turns ? `<span class="rot">${l.turns * 90}°</span>` : ''}
+          <button type="button" class="icon-btn rotate" title="Ruota etichetta">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+          </button>
+          <button type="button" class="icon-btn remove" title="Rimuovi">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+          </button>
+        </div>
+        <input type="text" class="note" maxlength="80" placeholder="Es. maglione blu tg. M">
+      </div>`;
+    const img = li.querySelector('img');
+    img.src = l.thumb;
+    img.style.cssText = thumbStyle(l);
+    const name = li.querySelector('.item-name');
+    name.textContent = name.title = l.name;
+    const handle = li.querySelector('.handle');
+    handle.setAttribute('aria-label', `Riordina etichetta ${i + 1}`);
+    handle.onpointerdown = e => startDrag(e, l.id);
+    handle.onkeydown = e => keyMove(e, l.id);
+    const rotate = li.querySelector('.rotate');
+    rotate.setAttribute('aria-label', `Ruota etichetta ${i + 1}`);
+    rotate.onclick = () => {
+      l.turns = (l.turns + 1) % 4;
+      renderList();
+      $('list').children[labels.indexOf(l)].querySelector('.rotate').focus();
+      renderPreview();
+    };
+    const remove = li.querySelector('.remove');
+    remove.setAttribute('aria-label', `Rimuovi etichetta ${i + 1}`);
+    remove.onclick = () => {
+      labels = labels.filter(x => x !== l);
+      if (hover === l.id) hover = null;
+      renderAll();
+      // keep keyboard focus in the list instead of dropping it on <body>
+      ($('list').querySelectorAll('.remove')[Math.min(i, labels.length - 1)] || $('files')).focus();
+    };
+    const input = li.querySelector('.note');
+    input.setAttribute('aria-label', `Scritta sopra l'etichetta ${i + 1}`);
+    input.value = l.note;
+    input.oninput = () => { l.note = input.value; clearTimeout(renderList.t); renderList.t = setTimeout(renderPreview, 300); };
+    input.onfocus = li.onmouseenter = () => setHover(l.id);
+    input.onblur = li.onmouseleave = () => setHover(null);
+    return li;
+  }));
+}
+
+// Highlights the label's cell on the sheet. Only with the side-by-side layout.
+function setHover(id) {
+  if (dragging) return;
+  hover = id;
+  for (const c of document.querySelectorAll('.cell')) c.classList.toggle('on', wide.matches && Number(c.dataset.id) === id);
+}
+
+function keyMove(e, id) {
+  if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return;
+  e.preventDefault();
+  const i = labels.findIndex(l => l.id === id), j = i + (e.key === 'ArrowUp' ? -1 : 1);
+  if (j < 0 || j >= labels.length) return;
+  labels.splice(j, 0, ...labels.splice(i, 1));
+  renderList();
+  $('list').children[j].querySelector('.handle').focus();
+  renderPreview();
+}
+
+// Drag by the handle: the row follows the pointer, the others slide out of the way.
+function startDrag(e, id) {
+  if (e.button) return;
+  e.preventDefault();
+  const rows = [...$('list').children];
+  const slots = rows.map(r => { const b = r.getBoundingClientRect(); return { top: b.top, mid: b.top + b.height / 2 }; });
+  const i0 = labels.findIndex(l => l.id === id), h0 = rows[i0].getBoundingClientRect().height, y0 = e.clientY;
+  let k = i0;
+  try { e.currentTarget.setPointerCapture(e.pointerId); } catch {}
+  setHover(id);
+  dragging = true;
+  $('list').classList.add('dragging');
+  rows[i0].classList.add('lifted');
+  const move = ev => {
+    const dy = Math.max(slots[0].top - slots[i0].top, Math.min(slots.at(-1).top - slots[i0].top, ev.clientY - y0));
+    const center = slots[i0].mid + dy;
+    k = slots.reduce((best, s, j) => Math.abs(center - s.mid) < Math.abs(center - slots[best].mid) ? j : best, 0);
+    rows.forEach((r, j) => {
+      const shift = j === i0 ? dy
+        : i0 < k && j > i0 && j <= k ? -h0
+        : k < i0 && j >= k && j < i0 ? h0 : 0;
+      r.style.transform = shift ? `translateY(${shift}px)` : '';
+    });
+  };
+  const up = () => {
+    removeEventListener('pointermove', move);
+    removeEventListener('pointerup', up);
+    removeEventListener('pointercancel', up);
+    dragging = false;
+    $('list').classList.remove('dragging');
+    if (k !== i0) labels.splice(k, 0, ...labels.splice(i0, 1));
+    renderList(); // ponytail: no settle animation on drop, the list just snaps into its new order
+    renderPreview();
+  };
+  addEventListener('pointermove', move);
+  addEventListener('pointerup', up);
+  addEventListener('pointercancel', up);
+}
+
+let renderSeq = 0;
+async function renderPreview() {
+  const seq = ++renderSeq;
+  const per = opts.perPage, bytes = await buildPdf(labels, opts);
+  const doc = await pdfjsLib.getDocument({ data: bytes }).promise;
+  const cells = cellRects(per, A4, opts.margin * MM);
+  const figs = [];
+  for (let i = 1; i <= doc.numPages; i++) {
+    const page = await doc.getPage(i);
+    const vp = page.getViewport({ scale: (520 / A4.w) * Math.min(2, devicePixelRatio || 1) });
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.ceil(vp.width);
+    canvas.height = Math.ceil(vp.height);
+    await page.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise;
+    const fig = document.createElement('figure');
+    fig.className = 'sheet-fig';
+    const sheet = document.createElement('div');
+    sheet.className = 'sheet';
+    sheet.setAttribute('role', 'img');
+    sheet.setAttribute('aria-label', `Foglio ${i} di ${doc.numPages}`);
+    sheet.append(canvas);
+    const chunk = labels.slice((i - 1) * per, i * per);
+    chunk.forEach((l, j) => {
+      const c = cells[j], cell = document.createElement('div');
+      cell.className = 'cell';
+      cell.dataset.id = l.id;
+      cell.style.cssText = `left: ${pct(c.x, A4.w)}; top: ${pct(A4.h - c.y - c.h, A4.h)}; width: ${pct(c.w, A4.w)}; height: ${pct(c.h, A4.h)}`;
+      cell.innerHTML = `<span class="chip">${(i - 1) * per + j + 1}</span>`;
+      cell.onmouseenter = () => setHover(l.id);
+      cell.onmouseleave = () => setHover(null);
+      sheet.append(cell);
+    });
+    fig.append(sheet);
+    if (labels.length) {
+      const cap = document.createElement('figcaption');
+      cap.innerHTML = '<span></span><span></span>';
+      cap.children[0].textContent = `Foglio ${i} di ${doc.numPages}`;
+      cap.children[1].textContent = chunk.length === 1 ? '1 etichetta' : `${chunk.length} etichette`;
+      fig.append(cap);
+    }
+    figs.push(fig);
+  }
+  if (seq !== renderSeq) return;
+  $('sheets').replaceChildren(...figs);
+  setHover(hover);
+}
+
+function renderAll() {
+  renderControls();
+  renderList();
+  renderPreview();
+}
 
 async function addFiles(files) {
+  const pdfs = files.filter(f => f.type === 'application/pdf' || /\.pdf$/i.test(f.name));
+  if (!pdfs.length) return;
   const errors = [];
-  for (const file of files) {
+  for (const file of pdfs) {
     try {
       const found = await loadFile(file);
       if (!found.length) errors.push(`${file.name} non contiene etichette: le pagine sono bianche.`);
@@ -371,99 +758,63 @@ async function addFiles(files) {
     }
   }
   $('status').textContent = errors.join(' ');
-  renderList();
-  renderPreview();
+  renderAll();
 }
 
-function renderList() {
-  $('list').replaceChildren(...labels.map((l, i) => {
-    const li = document.createElement('li');
-    li.className = 'item';
-    li.innerHTML = `
-      <img alt="">
-      <div>
-        <div class="item-head">
-          <span class="item-name"></span>
-          <button class="remove" type="button">Rimuovi</button>
-        </div>
-        <label for="note-${l.id}">Scritta sopra l'etichetta</label>
-        <input type="text" id="note-${l.id}" maxlength="80" placeholder="Es. maglione blu tg. M">
-      </div>`;
-    li.querySelector('img').src = l.thumb;
-    li.querySelector('.item-name').textContent = `${i + 1}. ${l.name}`;
-    const remove = li.querySelector('.remove');
-    remove.setAttribute('aria-label', `Rimuovi etichetta ${i + 1}`);
-    remove.onclick = () => {
-      labels = labels.filter(x => x !== l);
-      renderList();
-      renderPreview();
-      // keep keyboard focus in the list instead of dropping it on <body>
-      ($('list').querySelectorAll('.remove')[Math.min(i, labels.length - 1)] || $('files')).focus();
-    };
-    const input = li.querySelector('input');
-    input.value = l.note;
-    input.oninput = () => { l.note = input.value; clearTimeout(renderList.t); renderList.t = setTimeout(renderPreview, 300); };
-    return li;
-  }));
-  $('download').disabled = !labels.length;
-}
+for (const input of [$('files'), $('files2')])
+  input.onchange = e => { addFiles([...e.target.files]); e.target.value = ''; };
+$('notes').onchange = e => setOpts({ notes: e.target.checked });
+$('margini').oninput = e => setOpts({ margin: Number(e.target.value) });
+$('reset').onclick = () => setOpts({ ...DEFAULTS });
+for (const t of document.querySelectorAll('[role="tab"]'))
+  t.onclick = () => { app.dataset.view = t.dataset.view; renderControls(); };
+wide.addEventListener('change', () => setHover(hover));
 
-let renderSeq = 0;
-async function renderPreview() {
-  const seq = ++renderSeq;
-  if (!labels.length) {
-    $('mat').innerHTML = '<p class="empty">Aggiungi un PDF per vedere il foglio.</p>';
-    return;
-  }
-  const bytes = await buildPdf(labels, settings());
-  const doc = await pdfjsLib.getDocument({ data: bytes }).promise;
-  const canvases = [];
-  for (let i = 1; i <= doc.numPages; i++) {
-    const page = await doc.getPage(i);
-    const base = page.getViewport({ scale: 1 });
-    const vp = page.getViewport({ scale: (440 / base.width) * Math.min(2, devicePixelRatio || 1) });
-    const canvas = document.createElement('canvas');
-    canvas.width = Math.ceil(vp.width);
-    canvas.height = Math.ceil(vp.height);
-    canvas.setAttribute('role', 'img');
-    canvas.setAttribute('aria-label', `Foglio ${i} di ${doc.numPages}`);
-    await page.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise;
-    canvases.push(canvas);
-  }
-  if (seq === renderSeq) $('mat').replaceChildren(...canvases);
-}
-
-$('files').onchange = e => { addFiles([...e.target.files]); e.target.value = ''; };
-$('perPage').onchange = renderPreview;
-$('notes').onchange = renderPreview;
 // Inside the claude.ai viewer, plain <a download> is blocked: the downloads
 // capability asks the viewer to confirm instead. Opened as a local file, there is no window.claude.
 const downloadsReady = window.claude?.use ? window.claude.use('downloads') : Promise.resolve(null);
-$('download').onclick = async () => {
-  const blob = new Blob([await buildPdf(labels, settings())], { type: 'application/pdf' });
+async function download() {
+  if (!labels.length || dlState !== 'idle') return;
+  dlState = 'busy';
+  renderDownload();
+  const blob = new Blob([await buildPdf(labels, opts)], { type: 'application/pdf' });
   const filename = `etichette-${new Date().toISOString().slice(0, 10)}.pdf`;
   const downloads = await downloadsReady;
+  let saved = true;
   if (downloads) {
     try { await downloads.save({ filename, data: blob }); }
-    catch (e) { if (e.code !== 'declined') $('status').textContent = 'Download non riuscito. Riprova.'; }
-    return;
+    catch (e) {
+      saved = false;
+      if (e.code !== 'declined') $('status').textContent = 'Download non riuscito. Riprova.';
+    }
+  } else {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 10000);
   }
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = filename;
-  a.click();
-  setTimeout(() => URL.revokeObjectURL(a.href), 10000);
-};
+  dlState = saved ? 'done' : 'idle';
+  renderDownload();
+  if (saved) setTimeout(() => { dlState = 'idle'; renderDownload(); }, 1800);
+}
+for (const b of document.querySelectorAll('[data-dl]')) b.onclick = download;
 
-// Dropping anywhere on the page works, not only on the drop zone.
-addEventListener('dragover', e => { e.preventDefault(); $('drop').classList.add('over'); });
-addEventListener('dragleave', e => { if (!e.relatedTarget) $('drop').classList.remove('over'); });
-addEventListener('drop', e => {
+// Dropping anywhere on the page works, not only on the add button.
+addEventListener('dragover', e => {
+  if (![...(e.dataTransfer?.types || [])].includes('Files')) return;
   e.preventDefault();
-  $('drop').classList.remove('over');
-  const pdfs = [...e.dataTransfer.files].filter(f => f.type === 'application/pdf' || /\.pdf$/i.test(f.name));
-  if (pdfs.length) addFiles(pdfs);
+  app.classList.add('over');
 });
+addEventListener('dragleave', e => { if (!e.relatedTarget) app.classList.remove('over'); });
+addEventListener('drop', e => {
+  if (!e.dataTransfer?.files?.length) return;
+  e.preventDefault();
+  app.classList.remove('over');
+  addFiles([...e.dataTransfer.files]);
+});
+
+renderAll();
 </script>
 </body>
 </html>
